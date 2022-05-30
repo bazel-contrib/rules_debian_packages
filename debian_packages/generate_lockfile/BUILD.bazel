@@ -1,0 +1,39 @@
+load("@rules_python//python:defs.bzl", "py_library")
+load("//third_party:requirements.bzl", "requirement")
+
+exports_files(["__main__.py"])
+
+py_library(
+    name = "lib",
+    srcs = glob(["**/*.py"]),
+    deps = [
+        requirement("dataclass-wizard"),
+        requirement("python-debian"),
+        requirement("requests"),
+        requirement("networkx"),
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)
+
+filegroup(
+    name = "distribution",
+    srcs = glob(
+        include = ["*"],
+        exclude = ["*_test.py"],
+    ),
+    visibility = [
+      "//debian_packages:__subpackages__",
+      "//debian_packages:__pkg__",
+    ],
+)
+
+filegroup(
+    name = "py_srcs",
+    srcs = glob(
+        include = ["**/*.py"],
+        exclude = ["**/*_test.py"],
+    ),
+    visibility = ["//debian_packages:__subpackages__"],
+)

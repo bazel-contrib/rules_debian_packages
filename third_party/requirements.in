@@ -1,0 +1,4 @@
+requests==2.27.1
+python-debian==0.1.43
+dataclass-wizard[yaml]==0.22.1
+networkx==2.8.2

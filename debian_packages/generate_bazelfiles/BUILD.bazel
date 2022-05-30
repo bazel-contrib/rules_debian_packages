@@ -1,0 +1,17 @@
+filegroup(
+    name = "distribution",
+    srcs = glob(
+        include = ["*"],
+        exclude = ["*_test.py"],
+    ),
+    visibility = ["//debian_packages:__subpackages__"],
+)
+
+filegroup(
+    name = "py_srcs",
+    srcs = glob(
+        include = ["**/*.py"],
+        exclude = ["**/*_test.py"],
+    ),
+    visibility = ["//debian_packages:__subpackages__"],
+)
