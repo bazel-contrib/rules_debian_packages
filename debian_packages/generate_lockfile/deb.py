@@ -6,7 +6,7 @@ from typing import Optional, Union
 
 import requests
 import networkx
-from debian import deb822
+from debian import deb822, debian_support
 
 from debian_packages.generate_lockfile.config import Arch, Distro, SnapshotsConfig
 
@@ -68,6 +68,9 @@ class Package:
         default_factory=frozenset, repr=False
     )
 
+    def __str__(self) -> str:
+        return f"<{self.__class__.__name__} name={self.name} version={self.version}>"
+
     @staticmethod
     def from_deb822(
         pool_root_url: str, package: deb822.Package
@@ -91,13 +94,19 @@ class Package:
 
         provides = package.relations["provides"]
         for p in provides:
-            vp = Package(
+            version = p[0]["version"]
+            if version and len(version) == 2:
+                version = version[1]
+            elif version:
+                logger.warning(f"BUG dont know how to handle version '{version}'")
+
+            virtual_package = Package(
                 name=p[0]["name"],
-                version="",
+                version=version or None,
                 url=_package.url,
                 sha256=_package.sha256,
             )
-            virtual_packages.append(vp)
+            virtual_packages.append(virtual_package)
 
         if virtual_packages:
             return [_package] + virtual_packages
@@ -113,54 +122,122 @@ class PackageIndex:
     distro: Distro
     pool_root_url: str
     index_file_path: str
-    _initialized: bool = field(init=False, default=False)
-    _packages: networkx.DiGraph = field(init=False, default_factory=networkx.DiGraph)
+    _packages: list[Package] = field(init=False, default_factory=list)
 
     @property
     def index_file_url(self) -> str:
         return self.pool_root_url + self.index_file_path
 
-    def _initialize(self) -> None:
-        if self._initialized:
-            return
+    def __post_init__(self) -> None:
         logger.debug(f"{self}: fetching index file ...")
         response = requests.get(url=self.index_file_url, stream=True)
-        logger.debug(f"{self}: fetching index file ... done")
         logger.debug(f"{self}: loading index file ...")
         with lzma.open(response.raw) as f:
             for p in deb822.Packages.iter_paragraphs(f, use_apt_pkg=False):
                 package = Package.from_deb822(self.pool_root_url, p)
                 if isinstance(package, Package):
-                    self._add_package(package)
+                    self._packages.append(package)
                 else:
-                    self._add_packages(package)
+                    self._packages.extend(package)
         logger.debug(f"{self}: loading index file ... done")
-        self._initialized = True
 
-    def _add_packages(self, packages: list[Package]) -> None:
-        for p in packages:
-            self._add_package(p)
+    def __str__(self) -> str:
+        return f"<{self.__class__.__name__} name={self.name} distro={self.distro!s} arch={self.arch!s} snapshot={self.snapshot!s}>"
 
-    def _add_package(self, package: Package) -> None:
-        self._packages.add_node(package.name, package=package)
-        for d in package.dependencies:
-            if isinstance(d, frozenset):
-                for a in d:
-                    self._packages.add_edge(package.name, a, alternatives=d)
-            else:
-                self._packages.add_edge(package.name, d)
+
+@dataclass
+class PackageIndexGroup:
+    snapshots: SnapshotsConfig
+    arch: Arch
+    distro: Distro
+    main: PackageIndex = field(init=False)
+    updates: PackageIndex = field(init=False)
+    security: PackageIndex = field(init=False)
+    _packages: networkx.DiGraph = field(init=False, default_factory=networkx.DiGraph)
+
+    def __post_init__(self):
+        self.main = self._main_package_index()
+        self.updates = self._updates_package_index()
+        self.security = self._security_package_index()
+        self._initialize_graph()
+
+    def _initialize_graph(self) -> None:
+        packages = {}
+        for index in self.main, self.updates, self.security:
+            for package in index._packages:
+                if package.name in packages:
+                    previous_package = packages[package.name]
+                    if debian_support.version_compare(previous_package.version, package.version) != -1:
+                        # previous_package is at least as recenv as package
+                        continue
+                packages[package.name] = package
+
+        for package in packages.values():
+            self._packages.add_node(package.name, package=package)
+            for d in package.dependencies:
+                if isinstance(d, frozenset):
+                    for a in d:
+                        self._packages.add_edge(package.name, a, alternatives=d)
+                else:
+                    self._packages.add_edge(package.name, d)
 
     def _get_package(self, package_name: str) -> Package:
-        self._initialize()
         try:
             return self._packages.nodes[package_name]["package"]
         except KeyError:
             raise PackageNotFound(package_name)
 
     def _has_package(self, package_name: str) -> bool:
-        self._initialize()
         return (package_name in self._packages.nodes) and (
             "package" in self._packages.nodes[package_name]
+        )
+
+    @property
+    def debian_arch(self) -> str:
+        return get_debian_arch(self.arch)
+
+    @property
+    def debian_distro(self) -> str:
+        return get_debian_distro(self.distro)
+
+    def _main_package_index(self) -> PackageIndex:
+        snapshot = self.snapshots.main
+        return PackageIndex(
+            name="main",
+            snapshot=snapshot,
+            arch=self.arch,
+            distro=self.distro,
+            pool_root_url=f"https://snapshot.debian.org/archive/debian/{snapshot}/",
+            index_file_path=f"dists/{self.debian_distro}/main/binary-{self.debian_arch}/Packages.xz",
+        )
+
+    def _updates_package_index(self) -> PackageIndex:
+        snapshot = self.snapshots.main
+        return PackageIndex(
+            name="updates",
+            snapshot=snapshot,
+            arch=self.arch,
+            distro=self.distro,
+            pool_root_url=f"https://snapshot.debian.org/archive/debian/{snapshot}/",
+            index_file_path=f"dists/{self.debian_distro}-updates/main/binary-{self.debian_arch}/Packages.xz",
+        )
+
+    def _security_package_index(self) -> PackageIndex:
+        snapshot = self.snapshots.security
+        index_file_path = f"dists/{self.debian_distro}"
+        # NOTE the url changed after debian10
+        if self.distro in (Distro.DEBIAN8, Distro.DEBIAN9, Distro.DEBIAN10):
+            index_file_path += "/updates"
+        else:
+            index_file_path += "-security"
+        index_file_path += f"/main/binary-{self.debian_arch}/Packages.xz"
+        return PackageIndex(
+            name="security",
+            snapshot=snapshot,
+            arch=self.arch,
+            distro=self.distro,
+            pool_root_url=f"https://snapshot.debian.org/archive/debian-security/{snapshot}/",
+            index_file_path=index_file_path,
         )
 
     def resolve_package(
@@ -229,87 +306,3 @@ class PackageIndex:
         resolve_package_priorities(dependency_graph)
         dependencies = generate_dependencies(dependency_graph)
         return package, dependencies
-
-    def __str__(self) -> str:
-        return f"<{self.__class__.__name__} name={self.name} distro={self.distro!s} arch={self.arch!s} snapshot={self.snapshot!s}>"
-
-
-@dataclass
-class PackageIndexGroup:
-    snapshots: SnapshotsConfig
-    arch: Arch
-    distro: Distro
-    main: PackageIndex = field(init=False)
-    updates: PackageIndex = field(init=False)
-    security: PackageIndex = field(init=False)
-
-    def __post_init__(self):
-        self.main = self._main_package_index()
-        self.updates = self._updates_package_index()
-        self.security = self._security_package_index()
-
-    @property
-    def debian_arch(self) -> str:
-        return get_debian_arch(self.arch)
-
-    @property
-    def debian_distro(self) -> str:
-        return get_debian_distro(self.distro)
-
-    def _main_package_index(self) -> PackageIndex:
-        snapshot = self.snapshots.main
-        return PackageIndex(
-            name="main",
-            snapshot=snapshot,
-            arch=self.arch,
-            distro=self.distro,
-            pool_root_url=f"https://snapshot.debian.org/archive/debian/{snapshot}/",
-            index_file_path=f"dists/{self.debian_distro}/main/binary-{self.debian_arch}/Packages.xz",
-        )
-
-    def _updates_package_index(self) -> PackageIndex:
-        snapshot = self.snapshots.main
-        return PackageIndex(
-            name="updates",
-            snapshot=snapshot,
-            arch=self.arch,
-            distro=self.distro,
-            pool_root_url=f"https://snapshot.debian.org/archive/debian/{snapshot}/",
-            index_file_path=f"dists/{self.debian_distro}-updates/main/binary-{self.debian_arch}/Packages.xz",
-        )
-
-    def _security_package_index(self) -> PackageIndex:
-        snapshot = self.snapshots.security
-        index_file_path = f"dists/{self.debian_distro}"
-        # NOTE the url changed after debian10
-        if self.distro in (Distro.DEBIAN8, Distro.DEBIAN9, Distro.DEBIAN10):
-            index_file_path += "/updates"
-        else:
-            index_file_path += "-security"
-        index_file_path += f"/main/binary-{self.debian_arch}/Packages.xz"
-        return PackageIndex(
-            name="security",
-            snapshot=snapshot,
-            arch=self.arch,
-            distro=self.distro,
-            pool_root_url=f"https://snapshot.debian.org/archive/debian-security/{snapshot}/",
-            index_file_path=index_file_path,
-        )
-
-    def resolve_package(
-        self,
-        package_name: str,
-        exclude_packages: list[str],
-        package_priorities: list[list[str]],
-    ) -> tuple[Package, tuple[Package]]:
-        for i in self.main, self.updates, self.security:
-            try:
-                return i.resolve_package(
-                    package_name=package_name,
-                    exclude_packages=exclude_packages,
-                    package_priorities=package_priorities,
-                )
-            except PackageNotFound:
-                if i == self.main:
-                    raise
-        raise PackageNotFound(package_name)
