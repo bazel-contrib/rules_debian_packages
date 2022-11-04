@@ -1,0 +1,63 @@
+workspace(name = "python_base_image")
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+
+# ===== setup rules_python =====
+http_archive(
+    name = "rules_python",
+    sha256 = "8c8fe44ef0a9afc256d1e75ad5f448bb59b81aba149b8958f02f7b3a98f5d9b4",
+    strip_prefix = "rules_python-0.13.0",
+    url = "https://github.com/bazelbuild/rules_python/archive/refs/tags/0.13.0.tar.gz",
+)
+
+load("@rules_python//python:repositories.bzl", "python_register_toolchains")
+
+python_register_toolchains(
+    name = "python",
+    python_version = "3.9",
+)
+
+load("@python//:defs.bzl", python_interpreter = "interpreter")
+
+# ===== setup rules_docker =====
+http_archive(
+    name = "io_bazel_rules_docker",
+    sha256 = "b1e80761a8a8243d03ebca8845e9cc1ba6c82ce7c5179ce2b295cd36f7e394bf",
+    urls = ["https://github.com/bazelbuild/rules_docker/releases/download/v0.25.0/rules_docker-v0.25.0.tar.gz"],
+)
+
+load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
+
+container_repositories()
+
+load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
+
+container_deps(go_repository_default_config = "//:WORKSPACE.bazel")
+
+# ===== setup rules_debian_packages =====
+local_repository(
+    name = "rules_debian_packages",
+    path = "../..",
+)
+
+load("@rules_debian_packages//debian_packages:repositories.bzl", "rules_debian_packages_repositories")
+
+rules_debian_packages_repositories()
+
+load("@rules_debian_packages//debian_packages:deps.bzl", "rules_debian_packages_deps")
+
+rules_debian_packages_deps()
+
+load("@rules_debian_packages//debian_packages:repository.bzl", "debian_repository")
+
+debian_repository(
+    name = "debian_packages",
+    default_arch = "amd64",
+    default_distro = "debian11",
+    lockfile = "//:packages.lock",
+    python_interpreter_target = python_interpreter,
+)
+
+load("@debian_packages//:packages.bzl", debian_install_deps = "install_deps")
+
+debian_install_deps()

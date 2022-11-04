@@ -1,0 +1,56 @@
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@debian_packages//:packages.bzl", "debian_package")
+
+package(default_visibility = ["//visibility:public"])
+
+static_debs = [
+    debian_package("base-files"),
+    debian_package("netbase"),
+    debian_package("tzdata"),
+    debian_package("ca-certificates"),
+]
+
+base_debs = static_debs + [
+    debian_package("libc6"),
+    debian_package("libssl1.1"),
+    debian_package("openssl"),
+]
+
+cc_debs = base_debs + [
+    debian_package("libgcc-s1"),
+    debian_package("libgomp1"),
+    debian_package("libstdc++6"),
+]
+
+python_debs = cc_debs + [
+    debian_package("dash"),
+    debian_package("libc-bin"),
+    debian_package("python3.9-minimal"),
+    debian_package("libpython3.9-stdlib"),
+    debian_package("python3-distutils"),
+]
+
+container_image(
+    name = "python_base",
+    debs = python_debs,
+    entrypoint = ["/usr/bin/python3.9"],
+    env = {"LANG": "C.UTF-8"},
+    symlinks = {
+        "/usr/bin/python": "/usr/bin/python3.9",
+        "/usr/bin/python3": "/usr/bin/python3.9",
+    },
+    visibility = ["//visibility:private"],
+)
+
+load("@rules_debian_packages//debian_packages:lockfile.bzl", "generate_lockfile")
+
+# Generate lockfile with:
+# bazel run :debian_packages.generate
+# Update snapshots with:
+# bazel run :debian_packages.update
+generate_lockfile(
+    name = "debian_packages",
+    lockfile = "packages.lock",
+    packages_file = "packages.yaml",
+    snapshots_file = "snapshots.yaml",
+)
