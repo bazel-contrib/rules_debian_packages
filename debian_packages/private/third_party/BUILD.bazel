@@ -1,3 +1,4 @@
+load("@bazel_skylib//rules:diff_test.bzl", "diff_test")
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 load("@rules_python//python:pip.bzl", "compile_pip_requirements")
 
@@ -22,7 +23,16 @@ write_file(
 )
 
 sh_binary(
-    name = "vendor",
+    name = "vendor_requirements",
     srcs = ["vendor_requirements.sh"],
     data = ["@rules_debian_packages_pypi_deps//:requirements.bzl"],
+)
+
+# Similarly ensures that the requirements.bzl file is updated
+# based on the requirements.txt lockfile.
+diff_test(
+    name = "test_vendored",
+    failure_message = "Please run:  bazel run //:vendor_requirements",
+    file1 = "requirements.bzl",
+    file2 = "@rules_debian_packages_pypi_deps//:requirements.bzl",
 )
