@@ -1,7 +1,7 @@
 {
-  "homepage": "https://github.com/myorg/rules_mylang",
+  "homepage": "https://github.com/betaboon/rules_debian_packages",
   "maintainers": [],
-  "repository": ["github:myorg/rules_mylang"],
+  "repository": ["github:betaboon/rules_debian_packages"],
   "versions": [],
   "yanked_versions": {}
 }
