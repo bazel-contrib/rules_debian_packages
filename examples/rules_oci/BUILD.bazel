@@ -1,0 +1,76 @@
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_tarball")
+load("@debian_packages//:packages.bzl", "debian_package_layer")
+load("@rules_pkg//pkg:mappings.bzl", "pkg_mklink")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_lockfile")
+
+package(default_visibility = ["//visibility:public"])
+
+pkg_mklink(
+    name = "usr_bin_python_symlink",
+    link_name = "/usr/bin/python",
+    target = "/bin/bin/python3.11",
+)
+
+pkg_mklink(
+    name = "usr_bin_python3_symlink",
+    link_name = "/usr/bin/python3",
+    target = "/bin/bin/python3.11",
+)
+
+pkg_tar(
+    name = "symlinks_layer",
+    srcs = [
+        ":usr_bin_python3_symlink",
+        ":usr_bin_python_symlink",
+    ],
+)
+
+oci_image(
+    name = "image",
+    architecture = "amd64",
+    entrypoint = ["/usr/bin/python3.11"],
+    env = {"LANG": "C.UTF-8"},
+    os = "linux",
+    tars = [
+        # required to replicate distroless/static
+        debian_package_layer("base-files"),
+        debian_package_layer("netbase"),
+        debian_package_layer("tzdata"),
+        debian_package_layer("ca-certificates"),
+        # required to replicate distroless/base
+        debian_package_layer("libc6"),
+        debian_package_layer("libssl3"),
+        debian_package_layer("openssl"),
+        # required to replicate distroless/cc
+        debian_package_layer("libgcc-s1"),
+        debian_package_layer("libgomp1"),
+        debian_package_layer("libstdc++6"),
+        # required to replicate distroless/python
+        debian_package_layer("dash"),
+        debian_package_layer("libc-bin"),
+        debian_package_layer("python3.11-minimal"),
+        debian_package_layer("libpython3.11-stdlib"),
+        debian_package_layer("python3-distutils"),
+        # symlinks
+        ":symlinks_layer",
+    ],
+    visibility = ["//visibility:private"],
+)
+
+oci_tarball(
+    name = "image.tar",
+    image = ":image",
+    repo_tags = ["image:latest"],
+)
+
+# Generate lockfile with:
+# bazel run :debian_packages.generate
+# Update snapshots with:
+# bazel run :debian_packages.update
+debian_packages_lockfile(
+    name = "debian_packages",
+    lock_file = "packages.lock",
+    packages_file = "packages.yaml",
+    snapshots_file = "snapshots.yaml",
+)

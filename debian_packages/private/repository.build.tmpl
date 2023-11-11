@@ -1,0 +1,21 @@
+# AUTO GENERATED. DO NOT EDIT!
+
+load("@rules_debian_packages//debian_packages/private:utils.bzl", "package_rule", "package_layer_rule")
+
+package(default_visibility = ["//visibility:public"])
+
+_REPOSITORY = "{REPOSITORY}"
+
+_PACKAGES = {PACKAGES}
+
+[
+    package_rule(_REPOSITORY, name, distro, arch, deps)
+    for name, distro, arch, deps in _PACKAGES
+]
+
+[
+    package_layer_rule(_REPOSITORY, name, distro, arch, deps)
+    for name, distro, arch, deps in _PACKAGES
+]
+
+exports_files(["packages.bzl"])

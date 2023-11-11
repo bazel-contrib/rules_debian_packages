@@ -1,0 +1,17 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("//debian_packages/private/third_party:requirements.bzl", "requirement")
+
+exports_files(["__main__.py"])
+
+py_binary(
+    name = "binary",
+    srcs = glob(["**/*.py"]),
+    main = "__main__.py",
+    visibility = ["//visibility:public"],
+    deps = [
+        requirement("dataclass-wizard"),
+        requirement("networkx"),
+        requirement("python-debian"),
+        requirement("requests"),
+    ],
+)

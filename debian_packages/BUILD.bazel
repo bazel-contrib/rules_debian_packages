@@ -17,4 +17,8 @@ bzl_library(
     name = "defs",
     srcs = ["defs.bzl"],
     visibility = ["//visibility:public"],
+    deps = [
+        "//debian_packages/private:debian_packages_lockfile",
+        "//debian_packages/private:debian_packages_repository",
+    ],
 )

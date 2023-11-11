@@ -1,0 +1,28 @@
+load("@bazel_skylib//rules:write_file.bzl", "write_file")
+load("@rules_python//python:pip.bzl", "compile_pip_requirements")
+
+compile_pip_requirements(
+    name = "requirements",
+    extra_args = ["--allow-unsafe"],
+    requirements_in = "requirements.in",
+    requirements_txt = "requirements.txt",
+)
+
+write_file(
+    name = "vendor_requirements_sh",
+    out = "vendor_requirements.sh",
+    content = [
+        # This depends on bash, would need tweaks for Windows
+        "#!/usr/bin/env bash",
+        # Bazel gives us a way to access the source folder!
+        "IN=external/rules_debian_packages_pypi_deps/requirements.bzl",
+        "OUT=$BUILD_WORKSPACE_DIRECTORY/debian_packages/private/third_party/requirements.bzl",
+        "cp -fv $IN $OUT",
+    ],
+)
+
+sh_binary(
+    name = "vendor",
+    srcs = ["vendor_requirements.sh"],
+    data = ["@rules_debian_packages_pypi_deps//:requirements.bzl"],
+)

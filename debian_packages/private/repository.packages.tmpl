@@ -1,0 +1,45 @@
+# AUTO GENERATED. DO NOT EDIT!
+
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive", "http_file")
+load("@rules_debian_packages//debian_packages/private:utils.bzl", "debfile_name", "debfile_target", "debfile_layer_target", "package_name", "package_target", "package_layer_target")
+
+_REPOSITORY = "{REPOSITORY}"
+
+_DEFAULT_DISTRO = "{DEFAULT_DISTRO}"
+
+_DEFAULT_ARCH = "{DEFAULT_ARCH}"
+
+_FILES = {FILES}
+
+_ARCHIVE_BUILD_FILE_CONTENT = '''
+load("@rules_debian_packages//debian_packages/private:utils.bzl", "debfile_layer_rule")
+debfile_layer_rule()
+'''
+
+def debfile(name, distro = _DEFAULT_DISTRO, arch = _DEFAULT_ARCH):
+    return debfile_target(_REPOSITORY, name, distro, arch)
+
+def debfile_layer(name, distro = _DEFAULT_DISTRO, arch = _DEFAULT_ARCH):
+    return debfile_layer_target(_REPOSITORY, name, distro, arch)
+
+def debian_package(name, distro = _DEFAULT_DISTRO, arch = _DEFAULT_ARCH):
+    return package_target(_REPOSITORY, name, distro, arch)
+
+def debian_package_layer(name, distro = _DEFAULT_DISTRO, arch = _DEFAULT_ARCH):
+    return package_layer_target(_REPOSITORY, name, distro, arch)
+
+def install_deps():
+    for name, distro, arch, url, sha256, downloaded_file_path in _FILES:
+        http_file(
+            name = _REPOSITORY + "_" + debfile_name(name, distro, arch),
+            urls = [url],
+            sha256 = sha256,
+            downloaded_file_path = downloaded_file_path,
+        )
+
+        http_archive(
+            name = _REPOSITORY  + "_" + package_name(name, distro, arch),
+            urls = [url],
+            sha256 = sha256,
+            build_file_content = _ARCHIVE_BUILD_FILE_CONTENT,
+        )
