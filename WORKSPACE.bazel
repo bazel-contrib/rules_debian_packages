@@ -5,6 +5,10 @@ load(":internal_deps.bzl", "rules_debian_packages_internal_deps")
 
 rules_debian_packages_internal_deps()
 
+load("@aspect_bazel_lib//lib:repositories.bzl", "aspect_bazel_lib_dependencies")
+
+aspect_bazel_lib_dependencies()
+
 load("@rules_python//python:repositories.bzl", "py_repositories", "python_register_toolchains")
 
 py_repositories()
@@ -29,6 +33,7 @@ load("@rules_python//python:pip.bzl", "pip_parse")
 
 pip_parse(
     name = "rules_debian_packages_pypi_deps",
+    python_interpreter_target = python_interpreter,
     requirements_lock = "//debian_packages/private/third_party:requirements.txt",
 )
 
