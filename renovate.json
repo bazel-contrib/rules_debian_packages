@@ -13,5 +13,8 @@
       "matchFiles": ["MODULE.bazel"],
       "enabled": false
     }
-  ]
+  ],
+  "pip-compile": {
+    "fileMatch": ["(^|/)debian_packages/private/third_party/requirements\\.in$"]
+  }
 }
