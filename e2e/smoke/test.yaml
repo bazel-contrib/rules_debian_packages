@@ -1,0 +1,10 @@
+schemaVersion: "2.0.0"
+
+metadataTest:
+  entrypoint: ["/bin/busybox"]
+  cmd: ["sh"]
+
+fileExistenceTests:
+  - name: busybox
+    path: "/bin/busybox"
+    shouldExist: true

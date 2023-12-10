@@ -1,0 +1,52 @@
+load("@container_structure_test//:defs.bzl", "container_structure_test")
+load("@debian_packages//:packages.bzl", "debian_package", "debian_package_layer")
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_lockfile")
+load("@rules_oci//oci:defs.bzl", "oci_image", "oci_tarball")
+
+container_image(
+    name = "docker_image",
+    base = "@docker_distroless_cc//image",
+    cmd = ["sh"],
+    debs = [debian_package("busybox-static")],
+    entrypoint = ["/bin/busybox"],
+)
+
+container_structure_test(
+    name = "docker_test",
+    configs = ["test.yaml"],
+    driver = "tar",
+    image = ":docker_image.tar",
+)
+
+oci_image(
+    name = "oci_image",
+    base = "@oci_distroless_cc",
+    cmd = ["sh"],
+    entrypoint = ["/bin/busybox"],
+    tars = [debian_package_layer("busybox-static")],
+)
+
+oci_tarball(
+    name = "oci_image.tar",
+    image = ":oci_image",
+    repo_tags = ["oci_image:latest"],
+)
+
+container_structure_test(
+    name = "oci_test",
+    configs = ["test.yaml"],
+    driver = "tar",
+    image = ":oci_image.tar",
+)
+
+# Generate lockfile with:
+# bazel run :debian_packages.generate
+# Update snapshots with:
+# bazel run :debian_packages.update
+debian_packages_lockfile(
+    name = "debian_packages",
+    lock_file = "packages.lock",
+    packages_file = "packages.yaml",
+    snapshots_file = "snapshots.yaml",
+)
