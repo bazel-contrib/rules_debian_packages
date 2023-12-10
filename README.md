@@ -46,6 +46,7 @@ Usage of this ruleset involves three main steps:
 
 - [rules_docker](examples/rules_docker/)
 - [rules_oci](examples/rules_oci)
+- [bzlmod](examples/bzlmod)
 
 ## Public API Docs
 
