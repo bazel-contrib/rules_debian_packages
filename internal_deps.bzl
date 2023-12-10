@@ -61,9 +61,9 @@ def rules_debian_packages_internal_deps():
 
     http_archive(
         name = "rules_oci",
-        sha256 = "21a7d14f6ddfcb8ca7c5fc9ffa667c937ce4622c7d2b3e17aea1ffbc90c96bed",
-        strip_prefix = "rules_oci-1.4.0",
-        url = "https://github.com/bazel-contrib/rules_oci/releases/download/v1.4.0/rules_oci-v1.4.0.tar.gz",
+        sha256 = "d41d0ba7855f029ad0e5ee35025f882cbe45b0d5d570842c52704f7a47ba8668",
+        strip_prefix = "rules_oci-1.4.3",
+        url = "https://github.com/bazel-contrib/rules_oci/releases/download/v1.4.3/rules_oci-v1.4.3.tar.gz",
     )
 
     http_archive(
