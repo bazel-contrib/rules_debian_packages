@@ -10,15 +10,32 @@ def debian_packages_lockfile(
         mirror = "https://snapshot.debian.org",
         verbose = False,
         debug = False):
-    """Macro that generates lockfile-generator targets.
+    """Macro that produces targets to interact with a lockfile.
 
-    It creates two target to generate a lockfile and updating the snapshots.
+    Produces a target `[name].generate`, which generates a lockfile containing
+    packages defined in `[packages_file]` resolved against `[snapshots_file]`.
 
-    You can `bazel run [name].generate` to generate a lockfile containing the
-    packages defined in `[packages_file]` as resolved again `[snapshots_file]`.
-
-    You can `bazel run [name].update` to update the used snapshot and regenerate
+    Produces a target `[name].update`, which updates the snapshots and generates
     the lockfile.
+
+
+    Typical usage in `BUILD.bazel`:
+
+    ```starlark
+    load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_lockfile")
+
+    # Generate lockfile with:
+    # bazel run //path/to:debian_packages.generate
+    # Update snapshots with:
+    # bazel run //path/to:debian_packages.update
+    debian_packages_lockfile(
+        name = "debian_packages",
+        lock_file = "debian_packages.lock",
+        packages_file = "debian_packages.yaml",
+        snapshots_file = "debian_snapshots.yaml",
+    )
+    ```
+
 
     Args:
       name: The name of the lockfile-target.

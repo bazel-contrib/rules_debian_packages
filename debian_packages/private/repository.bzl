@@ -1,6 +1,56 @@
-"""Implementation of the debian_package_repository rule."""
+"""Implementation of the debian_packages_repository rule."""
 
-def _debian_packages_repository_impl(rctx):
+_doc = """A repository rule to download debian packages using Bazel's downloader.
+
+Typical usage in `WORKSPACE.bazel`:
+
+```starlark
+load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_repository")
+
+debian_packages_repository(
+    name = "my_debian_packages",
+    default_arch = "amd64",
+    default_distro = "debian12",
+    lock_file = "//path/to:debian_packages.lock",
+)
+
+load("@my_debian_packages//:packages.bzl", "install_deps")
+
+install_deps()
+```
+
+
+Packages can be used for `rules_docker` based container images like this:
+
+```starlark
+load("@io_bazel_rules_docker//container:container.bzl", "container_image")
+load("@my_debian_packages//:packages.bzl", "debian_package")
+
+container_image(
+    name = "my_image",
+    debs = [
+        debian_package("busybox-static"),
+    ],
+)
+```
+
+
+Packages can be used for `rules_oci` based container images like this:
+
+```starlark
+load("@rules_oci//oci:defs.bzl", "oci_image")
+load("@my_debian_packages//:packages.bzl", "debian_package_layer")
+
+oci_image(
+    name = "my_image",
+    tars = [
+        debian_package_layer("busybox-static"),
+    ],
+)
+```
+"""
+
+def _impl(rctx):
     lock_file_path = rctx.path(rctx.attr.lock_file)
     lock_file_content = json.decode(rctx.read(lock_file_path))
     lock_file_files = lock_file_content.get("files")
@@ -54,7 +104,7 @@ def _debian_packages_repository_impl(rctx):
         },
     )
 
-_debian_packages_repository_attrs = {
+_attrs = {
     "lock_file": attr.label(
         doc = "The lockfile to generate a repository from.",
         allow_single_file = True,
@@ -71,6 +121,7 @@ _debian_packages_repository_attrs = {
 }
 
 debian_packages_repository = repository_rule(
-    implementation = _debian_packages_repository_impl,
-    attrs = _debian_packages_repository_attrs,
+    implementation = _impl,
+    attrs = _attrs,
+    doc = _doc,
 )

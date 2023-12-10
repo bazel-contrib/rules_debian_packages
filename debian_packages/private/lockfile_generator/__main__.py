@@ -11,7 +11,7 @@ from debian_packages.private.lockfile_generator.snapshots import get_latest_snap
 
 logging.basicConfig(level=logging.WARNING)
 
-logger = logging.getLogger("debian_packages.generate_lockfile")
+logger = logging.getLogger("lockfile_generator")
 
 
 def parse_args() -> argparse.Namespace:
