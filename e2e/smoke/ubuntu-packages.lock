@@ -1,0 +1,28 @@
+{
+  "files": {
+    "ubuntu2204": {
+      "amd64": [
+        {
+          "name": "busybox_static",
+          "sha256": "3b7c609b27ceee49ae6a78ae6a0b2435c353dbbe8ffe46897b9ba2d228c4ca0d",
+          "url": "https://snapshot.ubuntu.com/ubuntu/20240223T000000Z/pool/main/b/busybox/busybox-static_1.30.1-7ubuntu3_amd64.deb",
+          "version": "1:1.30.1-7ubuntu3"
+        }
+      ]
+    }
+  },
+  "packages": {
+    "ubuntu2204": {
+      "amd64": [
+        {
+          "dependencies": [],
+          "name": "busybox_static"
+        }
+      ]
+    }
+  },
+  "snapshots": {
+    "main": "20240223T000000Z",
+    "security": "20240223T000000Z"
+  }
+}

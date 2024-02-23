@@ -1,0 +1,26 @@
+- distros: ["ubuntu2204"]
+  archs: ["amd64"]
+  packages:
+    - busybox-static
+  exclude_packages:
+    # generally excluded from distroless
+    - debconf
+    - debconf-2.0
+    - dpkg
+    - install-info
+    - debianutils
+    - media-types
+    - mime-support
+    # already included in distroless/static
+    - base-files
+    - netbase
+    - tzdata
+    - ca-certificates
+    # already included in distroless/base
+    - libc6
+    - libssl1.1
+    - openssl
+    # already included in distroless/cc
+    - libgcc-s1
+    - libgomp1
+    - libstdc++6

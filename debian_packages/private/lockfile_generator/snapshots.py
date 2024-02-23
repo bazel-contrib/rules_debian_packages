@@ -17,7 +17,6 @@ def _get_latest_ubuntu_snapshot(release_name: str, mirror: str, arch: str) -> st
         testtimestamp = "{0:%Y}{0:%m}{0:%d}T000000Z".format(testdate)
         url = f"{mirror}/ubuntu/{testtimestamp}/dists/{release_name}/main/binary-{arch}/Packages.xz"
         response = requests.get(url=url)
-        print(url, response, response.ok)
         if response.ok:
             latest_snapshot = testtimestamp
             break
@@ -36,7 +35,7 @@ def _get_latest_debian_snapshot(mirror: str, release_name: str) -> str:
     )
     snapshots = re.findall("[0-9]+T[0-9]+Z", response.text)
     latest_snapshot = snapshots[-1]
-    logger.debug(f"Latest snapshot for '{release-name}': {latest_snapshot}")
+    logger.debug(f"Latest snapshot for '{release_name}': {latest_snapshot}")
     return latest_snapshot
 
 
@@ -50,8 +49,8 @@ def get_latest_snapshots(mirror: str, release="", arch="") -> SnapshotsConfig:
         )
     else:
         release = "debian"
-        main = _get_latest_snapshot(release_name=release, mirror=mirror)
-        security = _get_latest_snapshot(
+        main = _get_latest_debian_snapshot(release_name=release, mirror=mirror)
+        security = _get_latest_debian_snapshot(
             release_name=release + "-security", mirror=mirror
         )
     return SnapshotsConfig(
