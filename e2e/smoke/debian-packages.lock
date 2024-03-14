@@ -5,7 +5,7 @@
         {
           "name": "busybox_static",
           "sha256": "acc44c207295b86114da4895ef53aebf186bf3cdfdc269a5a1a09eafac6a60db",
-          "url": "https://snapshot.debian.org/archive/debian/20231111T025358Z/pool/main/b/busybox/busybox-static_1.35.0-4+b3_amd64.deb",
+          "url": "https://snapshot.debian.org/archive/debian/20240222T093007Z/pool/main/b/busybox/busybox-static_1.35.0-4+b3_amd64.deb",
           "version": "1:1.35.0-4+b3"
         }
       ]
@@ -22,7 +22,7 @@
     }
   },
   "snapshots": {
-    "main": "20231111T025358Z",
-    "security": "20231110T215743Z"
+    "main": "20240222T093007Z",
+    "security": "20240223T175703Z"
   }
 }

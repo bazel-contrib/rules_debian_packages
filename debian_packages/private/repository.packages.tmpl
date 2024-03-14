@@ -13,7 +13,13 @@ _FILES = {FILES}
 
 _ARCHIVE_BUILD_FILE_CONTENT = '''
 load("@rules_debian_packages//debian_packages/private:utils.bzl", "debfile_layer_rule")
-debfile_layer_rule()
+# Support non-standard data archive compression, e.g. 'data.tar.zst' as well as the
+# more typical 'data.tar.xz'.
+filegroup(
+   name = "data_archive",
+   srcs = glob(["data.tar.*"]),
+)
+debfile_layer_rule(name = "layer", srcs = [":data_archive"])
 '''
 
 def debfile(name, distro = _DEFAULT_DISTRO, arch = _DEFAULT_ARCH):

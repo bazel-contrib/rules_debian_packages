@@ -33,18 +33,27 @@ def get_debian_arch(arch: Arch) -> str:
 
 
 def get_debian_distro(distro: Distro) -> str:
-    if distro == Distro.DEBIAN8:
-        return "jessie"
-    elif distro == Distro.DEBIAN9:
-        return "stretch"
-    elif distro == Distro.DEBIAN10:
-        return "buster"
-    elif distro == Distro.DEBIAN11:
-        return "bullseye"
-    elif distro == Distro.DEBIAN12:
-        return "bookworm"
-    elif distro == Distro.DEBIAN13:
-        return "trixie"
+    # WARNING: Also edit 'config.py' to add supported distros to the enum.
+    distro_map = {
+        # Debian distributions
+        Distro.DEBIAN8: "jessie",
+        Distro.DEBIAN9: "stretch",
+        Distro.DEBIAN10: "buster",
+        Distro.DEBIAN11: "bullseye",
+        Distro.DEBIAN12: "bookworm",
+        Distro.DEBIAN13: "trixie",
+        # Ubuntu distributions
+        Distro.UBUNTU1404: "trusty",
+        Distro.UBUNTU1604: "xenial",
+        Distro.UBUNTU1804: "bionic",
+        Distro.UBUNTU2004: "focal",
+        Distro.UBUNTU2204: "jammy",
+        Distro.UBUNTU2304: "lunar",
+        Distro.UBUNTU2310: "mantic",
+    }
+
+    if distro in distro_map:
+        return distro_map[distro]
     else:
         raise Exception(f"Unknown Distro: {distro}")
 
@@ -214,6 +223,13 @@ class PackageIndexGroup:
     def debian_distro(self) -> str:
         return get_debian_distro(self.distro)
 
+    def _pool_root_url(self, snapshot) -> str:
+        mirror = self.mirror
+        if "ubuntu" in mirror:
+            return f"{mirror}/ubuntu/{snapshot}/"
+        else:
+            return f"{mirror}/archive/debian/{snapshot}/"
+
     def _main_package_index(self) -> PackageIndex:
         snapshot = self.snapshots.main
         return PackageIndex(
@@ -221,7 +237,7 @@ class PackageIndexGroup:
             snapshot=snapshot,
             arch=self.arch,
             distro=self.distro,
-            pool_root_url=f"{self.mirror}/archive/debian/{snapshot}/",
+            pool_root_url=self._pool_root_url(snapshot),
             index_file_path=f"dists/{self.debian_distro}/main/binary-{self.debian_arch}/Packages.xz",
         )
 
@@ -232,11 +248,17 @@ class PackageIndexGroup:
             snapshot=snapshot,
             arch=self.arch,
             distro=self.distro,
-            pool_root_url=f"{self.mirror}/archive/debian/{snapshot}/",
+            pool_root_url=self._pool_root_url(snapshot),
             index_file_path=f"dists/{self.debian_distro}-updates/main/binary-{self.debian_arch}/Packages.xz",
         )
 
     def _security_package_index(self) -> PackageIndex:
+        if "ubuntu" in self.mirror:
+            return self._security_package_index_ubuntu()
+        else:
+            return self._security_package_index_debian()
+
+    def _security_package_index_debian(self) -> PackageIndex:
         snapshot = self.snapshots.security
         index_file_path = f"dists/{self.debian_distro}"
         # NOTE the url changed after debian10
@@ -252,6 +274,17 @@ class PackageIndexGroup:
             distro=self.distro,
             pool_root_url=f"{self.mirror}/archive/debian-security/{snapshot}/",
             index_file_path=index_file_path,
+        )
+
+    def _security_package_index_ubuntu(self) -> PackageIndex:
+        snapshot = self.snapshots.security
+        return PackageIndex(
+            name="security",
+            snapshot=snapshot,
+            arch=self.arch,
+            distro=self.distro,
+            pool_root_url=self._pool_root_url(snapshot),
+            index_file_path=f"dists/{self.debian_distro}-security/main/binary-{self.debian_arch}/Packages.xz",
         )
 
     def resolve_package(

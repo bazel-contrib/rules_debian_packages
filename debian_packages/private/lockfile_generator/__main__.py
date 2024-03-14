@@ -8,6 +8,10 @@ from debian_packages.private.lockfile_generator.config import (
 )
 from debian_packages.private.lockfile_generator.lockfile import generate_lockfile
 from debian_packages.private.lockfile_generator.snapshots import get_latest_snapshots
+from debian_packages.private.lockfile_generator.deb import (
+    get_debian_distro,
+    get_debian_arch,
+)
 
 logging.basicConfig(level=logging.WARNING)
 
@@ -39,16 +43,20 @@ def main():
 
     logger.info(f"Using mirror: {args.mirror}")
 
+    packages = PackagesConfig.from_yaml_file(args.packages_file)
+    release_name = get_debian_distro(packages[0].get_distros()[0])
+    arch_name = get_debian_arch(packages[0].get_archs()[0])
+
     if args.update_snapshots_file:
         logger.debug("Retrieving latest snapshots ...")
-        latest_snapshots = get_latest_snapshots(mirror=args.mirror)
+        latest_snapshots = get_latest_snapshots(
+            mirror=args.mirror, release=release_name, arch=arch_name
+        )
         if snapshots == latest_snapshots:
             logger.info("Already at latest snapshots.")
         else:
             snapshots = latest_snapshots
             logger.info(f"Using new snapshots: {snapshots}")
-
-    packages = PackagesConfig.from_yaml_file(args.packages_file)
 
     logger.debug("Generating lockfile ...")
     lockfile = generate_lockfile(

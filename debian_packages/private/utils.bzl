@@ -24,12 +24,27 @@ def package_layer_name(name, distro, arch):
 def package_layer_target(repo, name, distro, arch):
     return "@" + repo + "//:" + package_layer_name(name, distro, arch)
 
-def debfile_layer_rule(name = "layer"):
+def debfile_layer_rule(name = "layer", srcs = ["data.tar.xz"]):
+    # Some .deb archives can have non-standard data archive compression, e.g.
+    # you will occasionally see `data.tar.zst`.
+    #
+    # This genrule handles both, so long as the input is a filegroup with a
+    # single archive.
     native.genrule(
         name = name,
-        srcs = [":data.tar.xz"],
+        srcs = srcs,
         outs = ["data.tar"],
-        cmd = "xz --decompress --stdout $< >$@",
+        cmd = """
+        for x in $(SRCS); do
+            if [[ "$$x" = *.xz ]]; then
+              xz -d --stdout "$$x" >$@
+              break;
+            elif [[ "$$x" = *.zst ]]; then
+              zstd -f -d --stdout "$$x" >$@
+              break;
+            fi
+        done
+        """,
         visibility = ["//visibility:public"],
     )
 
