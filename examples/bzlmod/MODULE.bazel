@@ -1,0 +1,26 @@
+module(
+    name = "rules_debian_packages_bzlmod_example",
+    version = "0.0.0",
+    compatibility_level = 1,
+)
+
+bazel_dep(name = "rules_oci", version = "1.4.0")
+bazel_dep(name = "rules_pkg", version = "0.9.1")
+bazel_dep(name = "rules_python", version = "0.26.0")
+bazel_dep(name = "rules_debian_packages", version = "0.0.0")
+local_path_override(
+    module_name = "rules_debian_packages",
+    path = "../..",
+)
+
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(python_version = "3.11")
+
+debian_packages = use_extension("@rules_debian_packages//debian_packages:extensions.bzl", "debian_packages")
+debian_packages.repository(
+    name = "debian_packages",
+    default_arch = "amd64",
+    default_distro = "debian12",
+    lock_file = "//:packages.lock",
+)
+use_repo(debian_packages, "debian_packages")
