@@ -40,6 +40,7 @@ def generate_lockfile(
                     distro=distro,
                     arch=arch,
                     mirror=mirror,
+                    components=pc.components,
                 )
             pig = pigs[(distro, arch)]
             for package_name in pc.packages:

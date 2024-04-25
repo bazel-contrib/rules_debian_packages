@@ -1,0 +1,53 @@
+{
+  "files": {
+    "ubuntu2204": {
+      "amd64": [
+        {
+          "name": "fonts_dejavu",
+          "sha256": "83e43fdb9248647fd5dbcb797cead127f2bc80a992312795be42b0b365907dd5",
+          "url": "https://snapshot.ubuntu.com/ubuntu/20240223T000000Z/pool/universe/f/fonts-dejavu/fonts-dejavu_2.37-2build1_all.deb",
+          "version": "2.37-2build1"
+        },
+        {
+          "name": "fonts_dejavu_core",
+          "sha256": "c33fe8bf33b50d99d6448804a090123b1bbba37d7a8703c630695676d110a47d",
+          "url": "https://snapshot.ubuntu.com/ubuntu/20240223T000000Z/pool/main/f/fonts-dejavu/fonts-dejavu-core_2.37-2build1_all.deb",
+          "version": "2.37-2build1"
+        },
+        {
+          "name": "fonts_dejavu_extra",
+          "sha256": "82ac55cdab01af5c2d21b0af9abf8c9fc638f989a1ff3eddd1490b294bd9be6b",
+          "url": "https://snapshot.ubuntu.com/ubuntu/20240223T000000Z/pool/main/f/fonts-dejavu/fonts-dejavu-extra_2.37-2build1_all.deb",
+          "version": "2.37-2build1"
+        },
+        {
+          "name": "libasound2",
+          "sha256": "4543d27252b0caa67222287adc76988ecd86a4ff6d7a69cfd5343d21aa1ddb02",
+          "url": "https://snapshot.ubuntu.com/ubuntu/20240223T000000Z/pool/universe/o/oss4/liboss4-salsa-asound2_4.2-build2010-5ubuntu9_amd64.deb",
+          "version": null
+        }
+      ]
+    }
+  },
+  "packages": {
+    "ubuntu2204": {
+      "amd64": [
+        {
+          "dependencies": [
+            "fonts_dejavu_core",
+            "fonts_dejavu_extra"
+          ],
+          "name": "fonts_dejavu"
+        },
+        {
+          "dependencies": [],
+          "name": "libasound2"
+        }
+      ]
+    }
+  },
+  "snapshots": {
+    "main": "20240223T000000Z",
+    "security": "20240223T000000Z"
+  }
+}

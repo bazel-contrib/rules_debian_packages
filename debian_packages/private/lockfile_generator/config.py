@@ -43,6 +43,7 @@ class PackagesConfig(YAMLWizard):
     archs: list[Arch]
     distros: list[Distro]
     packages: list[str]
+    components: list[str] = field(default_factory=lambda: ["main"])
     exclude_packages: list[str] = field(default_factory=list)
     package_priorities: list[list[str]] = field(default_factory=list)
 

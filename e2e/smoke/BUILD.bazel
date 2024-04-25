@@ -84,3 +84,15 @@ debian_packages_lockfile(
     packages_file = "ubuntu-packages.yaml",
     snapshots_file = "ubuntu-snapshots.yaml",
 )
+
+# Generate lockfile with:
+# bazel run :ubuntu_packages_universe.generate
+# Update snapshots with:
+# bazel run :ubuntu_packages_universe.update
+debian_packages_lockfile(
+    name = "ubuntu_packages_universe",
+    lock_file = "ubuntu-packages-universe.lock",
+    mirror = "https://snapshot.ubuntu.com",
+    packages_file = "ubuntu-packages-universe.yaml",
+    snapshots_file = "ubuntu-snapshots.yaml",
+)

@@ -1,0 +1,6 @@
+- distros: ["ubuntu2204"]
+  archs: ["amd64"]
+  components: ["main", "universe"]
+  packages:
+    - fonts-dejavu  # A metapackage in universe, with two dependencies in main (fonts-dejavu-core & fonts-dejavu-extra)
+    - libasound2    # A package in main, that is "provided by" a package in universe (liboss4-salsa-asound2)

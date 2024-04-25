@@ -168,20 +168,22 @@ class PackageIndexGroup:
     arch: Arch
     distro: Distro
     mirror: str
-    main: PackageIndex = field(init=False)
-    updates: PackageIndex = field(init=False)
-    security: PackageIndex = field(init=False)
+    components: list[str]
+    indexes: list[PackageIndex] = field(default_factory=list)
     _packages: networkx.DiGraph = field(init=False, default_factory=networkx.DiGraph)
 
     def __post_init__(self):
-        self.main = self._main_package_index()
-        self.updates = self._updates_package_index()
-        self.security = self._security_package_index()
+        for component in self.components:
+            self.indexes.extend([
+                self._main_package_index(component),
+                self._updates_package_index(component),
+                self._security_package_index(component)
+            ])
         self._initialize_graph()
 
     def _initialize_graph(self) -> None:
         packages = {}
-        for index in self.main, self.updates, self.security:
+        for index in self.indexes:
             for package in index._packages:
                 if package.name in packages:
                     previous_package = packages[package.name]
@@ -230,35 +232,35 @@ class PackageIndexGroup:
         else:
             return f"{mirror}/archive/debian/{snapshot}/"
 
-    def _main_package_index(self) -> PackageIndex:
+    def _main_package_index(self, component) -> PackageIndex:
         snapshot = self.snapshots.main
         return PackageIndex(
-            name="main",
+            name="main_" + component,
             snapshot=snapshot,
             arch=self.arch,
             distro=self.distro,
             pool_root_url=self._pool_root_url(snapshot),
-            index_file_path=f"dists/{self.debian_distro}/main/binary-{self.debian_arch}/Packages.xz",
+            index_file_path=f"dists/{self.debian_distro}/{component}/binary-{self.debian_arch}/Packages.xz",
         )
 
-    def _updates_package_index(self) -> PackageIndex:
+    def _updates_package_index(self, component) -> PackageIndex:
         snapshot = self.snapshots.main
         return PackageIndex(
-            name="updates",
+            name="updates_" + component,
             snapshot=snapshot,
             arch=self.arch,
             distro=self.distro,
             pool_root_url=self._pool_root_url(snapshot),
-            index_file_path=f"dists/{self.debian_distro}-updates/main/binary-{self.debian_arch}/Packages.xz",
+            index_file_path=f"dists/{self.debian_distro}-updates/{component}/binary-{self.debian_arch}/Packages.xz",
         )
 
-    def _security_package_index(self) -> PackageIndex:
+    def _security_package_index(self, component) -> PackageIndex:
         if "ubuntu" in self.mirror:
-            return self._security_package_index_ubuntu()
+            return self._security_package_index_ubuntu(component)
         else:
-            return self._security_package_index_debian()
+            return self._security_package_index_debian(component)
 
-    def _security_package_index_debian(self) -> PackageIndex:
+    def _security_package_index_debian(self, component) -> PackageIndex:
         snapshot = self.snapshots.security
         index_file_path = f"dists/{self.debian_distro}"
         # NOTE the url changed after debian10
@@ -266,9 +268,9 @@ class PackageIndexGroup:
             index_file_path += "/updates"
         else:
             index_file_path += "-security"
-        index_file_path += f"/main/binary-{self.debian_arch}/Packages.xz"
+        index_file_path += f"/{component}/binary-{self.debian_arch}/Packages.xz"
         return PackageIndex(
-            name="security",
+            name="security_" + component,
             snapshot=snapshot,
             arch=self.arch,
             distro=self.distro,
@@ -276,15 +278,15 @@ class PackageIndexGroup:
             index_file_path=index_file_path,
         )
 
-    def _security_package_index_ubuntu(self) -> PackageIndex:
+    def _security_package_index_ubuntu(self, component) -> PackageIndex:
         snapshot = self.snapshots.security
         return PackageIndex(
-            name="security",
+            name="security_" + component,
             snapshot=snapshot,
             arch=self.arch,
             distro=self.distro,
             pool_root_url=self._pool_root_url(snapshot),
-            index_file_path=f"dists/{self.debian_distro}-security/main/binary-{self.debian_arch}/Packages.xz",
+            index_file_path=f"dists/{self.debian_distro}-security/{component}/binary-{self.debian_arch}/Packages.xz",
         )
 
     def resolve_package(
