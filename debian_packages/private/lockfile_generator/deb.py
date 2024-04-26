@@ -134,8 +134,8 @@ class Package:
 @dataclass
 class PackageIndex:
     name: str
-    snapshot: str = ""
     arch: Arch
+    snapshot: str = ""
     distro: Distro = ""
     pool_root_url: str
     index_file_path: str
