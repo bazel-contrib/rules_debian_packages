@@ -7,7 +7,7 @@ def debian_packages_lockfile(
         snapshots_file = "",
         packages_file = "packages.yaml",
         lock_file = "packages.lock",
-        mirror = "https://snapshot.debian.org",
+        mirror = "",
         exact_sources = [],
         verbose = False,
         debug = False):
