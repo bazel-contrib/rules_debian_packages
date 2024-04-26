@@ -8,6 +8,7 @@ def debian_packages_lockfile(
         packages_file = "packages.yaml",
         lock_file = "packages.lock",
         mirror = "https://snapshot.debian.org",
+        exact_sources = [],
         verbose = False,
         debug = False):
     """Macro that produces targets to interact with a lockfile.
@@ -43,6 +44,7 @@ def debian_packages_lockfile(
       packages_file: The file to read the desired packages from.
       lock_file: The file to write locked packages to.
       mirror: The debian-snapshot host to use.
+      exact_sources: a list of sources from which to read. Incompatible with mirror, snapshots_file
       verbose: Enable verbose logging.
       debug: Enable debug logging.
     """
@@ -57,15 +59,17 @@ def debian_packages_lockfile(
 
     args = [
         "$(location {})".format(lockfile_generator),
-        "--snapshots-file $(rootpath {})".format(snapshots_file),
         "--packages-file $(rootpath {})".format(packages_file),
         "--lock-file $(rootpath {})".format(lock_file),
-        "--mirror {}".format(mirror),
     ]
-
+    if exact_sources:
+        args.append("--exact-sources {}".format(" ".join(exact_sources)))
+    if snapshots_file:
+        args.append("--snapshots-file $(rootpath {})".format(snapshots_file))
+    if mirror:
+        args.append("--mirror {}".format(mirror))
     if verbose:
         args.append("--verbose")
-
     if debug:
         args.append("--debug")
 
