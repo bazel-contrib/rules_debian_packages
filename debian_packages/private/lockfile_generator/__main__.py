@@ -22,7 +22,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--packages-file", type=Path, required=True)
     parser.add_argument("--lock-file", type=Path, required=True)
-    parser.add_argument("--snapshots-file", type=Path, default="")
+    parser.add_argument("--snapshots-file", type=str, default="")
     parser.add_argument("--update-snapshots-file", action="store_true", default=False)
     parser.add_argument("--mirror", type=str, default="https://snapshot.debian.org")
     parser.add_argument("--dry-run", action="store_true", default=False)
@@ -41,7 +41,7 @@ def main():
         logger.setLevel(logging.DEBUG)
 
     if args.snapshots_file:
-        snapshots = SnapshotsConfig.from_yaml_file(args.snapshots_file)
+        snapshots = SnapshotsConfig.from_yaml_file(Path(args.snapshots_file))
 
     logger.info(f"Using mirror: {args.mirror}")
 
