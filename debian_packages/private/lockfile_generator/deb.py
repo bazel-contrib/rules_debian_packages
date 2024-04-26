@@ -149,6 +149,7 @@ class PackageIndex:
         logger.debug(f"{self}: fetching index file ...")
         response = requests.get(url=self.index_file_url, stream=True)
         logger.debug(f"{self}: loading index file ...")
+        print(self.index_file_url)
         with lzma.open(response.raw) as f:
             for p in deb822.Packages.iter_paragraphs(f, use_apt_pkg=False):
                 package = Package.from_deb822(self.pool_root_url, p)
@@ -296,7 +297,7 @@ class PackageIndexGroup:
             arch=self.arch,
             distro=self.distro,
             pool_root_url=source,
-            index_file_path= ('/' if source[-1] != '/' else '') + f"binary-{self.debian_arch}/Packages",
+            index_file_path= ('/' if source[-1] != '/' else '') + f"binary-{self.debian_arch}/Packages.xz",
         )
 
     def resolve_package(
