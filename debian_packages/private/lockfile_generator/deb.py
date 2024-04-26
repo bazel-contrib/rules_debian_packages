@@ -135,10 +135,10 @@ class Package:
 class PackageIndex:
     name: str
     arch: Arch
-    snapshot: str = ""
-    distro: Distro = ""
     pool_root_url: str
     index_file_path: str
+    snapshot: str = ""
+    distro: Distro = ""
     _packages: list[Package] = field(init=False, default_factory=list)
 
     @property
