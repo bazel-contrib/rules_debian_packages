@@ -4,7 +4,7 @@ load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
 def debian_packages_lockfile(
         name,
-        snapshots_file = "snapshots.yaml",
+        snapshots_file = "",
         packages_file = "packages.yaml",
         lock_file = "packages.lock",
         mirror = "https://snapshot.debian.org",
@@ -52,10 +52,12 @@ def debian_packages_lockfile(
 
     data = [
         lockfile_generator,
-        snapshots_file,
         packages_file,
         lock_file,
     ]
+
+    if snapshots_file:
+        data.append(snapshots_file)
 
     args = [
         "$(location {})".format(lockfile_generator),
