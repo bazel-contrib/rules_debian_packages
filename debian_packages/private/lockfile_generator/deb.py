@@ -164,10 +164,10 @@ class PackageIndex:
 
 @dataclass
 class PackageIndexGroup:
-    snapshots: SnapshotsConfig = None
     arch: Arch
     distro: Distro
     mirror: str = None
+    snapshots: SnapshotsConfig = None
     exact_sources: list = field(init=False, default_factory=list)
     indices: list = field(init=False, default_factory=list)
     _packages: networkx.DiGraph = field(init=False, default_factory=networkx.DiGraph)
