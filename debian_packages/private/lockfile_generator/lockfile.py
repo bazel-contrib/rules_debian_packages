@@ -23,9 +23,10 @@ def _sanitize_name(name: str) -> str:
 
 
 def generate_lockfile(
-    snapshots_config: SnapshotsConfig,
-    packages_config: PackagesConfig,
-    mirror: str,
+    snapshots_config: SnapshotsConfig = None,
+    packages_config: PackagesConfig = None,
+    mirror: str = "",
+    exact_sources: list[str] = None,
 ) -> Lockfile:
     packages = defaultdict(lambda: defaultdict(list))
     files = defaultdict(lambda: defaultdict(list))
@@ -40,6 +41,7 @@ def generate_lockfile(
                     distro=distro,
                     arch=arch,
                     mirror=mirror,
+                    exact_sources=exact_sources,
                 )
             pig = pigs[(distro, arch)]
             for package_name in pc.packages:

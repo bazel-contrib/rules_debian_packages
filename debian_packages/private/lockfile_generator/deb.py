@@ -134,9 +134,9 @@ class Package:
 @dataclass
 class PackageIndex:
     name: str
-    snapshot: str
+    snapshot: str = ""
     arch: Arch
-    distro: Distro
+    distro: Distro = ""
     pool_root_url: str
     index_file_path: str
     _packages: list[Package] = field(init=False, default_factory=list)
@@ -159,29 +159,32 @@ class PackageIndex:
         logger.debug(f"{self}: loading index file ... done")
 
     def __str__(self) -> str:
-        return f"<{self.__class__.__name__} name={self.name} distro={self.distro!s} arch={self.arch!s} snapshot={self.snapshot!s}>"
+        return f"<{self.__class__.__name__} name={self.name} distro={self.distro!s} arch={self.arch!s}" + " snapshot={self.snapshot!s}>" if self.snapshot else ">"
 
 
 @dataclass
 class PackageIndexGroup:
-    snapshots: SnapshotsConfig
+    snapshots: SnapshotsConfig = None
     arch: Arch
     distro: Distro
-    mirror: str
-    main: PackageIndex = field(init=False)
-    updates: PackageIndex = field(init=False)
-    security: PackageIndex = field(init=False)
+    mirror: str = None
+    exact_sources: list = []
+    indices: list = []
     _packages: networkx.DiGraph = field(init=False, default_factory=networkx.DiGraph)
 
     def __post_init__(self):
-        self.main = self._main_package_index()
-        self.updates = self._updates_package_index()
-        self.security = self._security_package_index()
+        if self.exact_sources:
+            for i, source in enumerate(self.exact_sources):
+                self.indices.append(self._exact_package_index(source, i))
+        else:
+            self.indices.append(self._main_package_index())
+            self.indices.append(self._updates_package_index())
+            self.indices.append(self._security_package_index())
         self._initialize_graph()
 
     def _initialize_graph(self) -> None:
         packages = {}
-        for index in self.main, self.updates, self.security:
+        for index in self.indices:
             for package in index._packages:
                 if package.name in packages:
                     previous_package = packages[package.name]
@@ -285,6 +288,15 @@ class PackageIndexGroup:
             distro=self.distro,
             pool_root_url=self._pool_root_url(snapshot),
             index_file_path=f"dists/{self.debian_distro}-security/main/binary-{self.debian_arch}/Packages.xz",
+        )
+
+    def _exact_package_index(self, source: str, index: int) -> PackageIndex:
+        return PackageIndex(
+            name=f"exact_{str(index)}",
+            arch=self.arch,
+            distro=self.distro,
+            pool_root_url=source,
+            index_file_path= '' if source[-1] != '/' else '/' + f"binary-{self.debian_arch}/Packages.xz",
         )
 
     def resolve_package(
