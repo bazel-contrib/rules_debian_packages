@@ -168,8 +168,8 @@ class PackageIndexGroup:
     arch: Arch
     distro: Distro
     mirror: str = None
-    exact_sources: list = []
-    indices: list = []
+    exact_sources: list = field(init=False, default_factory=list)
+    indices: list = field(init=False, default_factory=list)
     _packages: networkx.DiGraph = field(init=False, default_factory=networkx.DiGraph)
 
     def __post_init__(self):
