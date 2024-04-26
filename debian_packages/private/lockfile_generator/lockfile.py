@@ -26,7 +26,7 @@ def generate_lockfile(
     snapshots_config: SnapshotsConfig = None,
     packages_config: PackagesConfig = None,
     mirror: str = "",
-    exact_sources: list[str] = None,
+    exact_sources: list[str] = [],
 ) -> Lockfile:
     packages = defaultdict(lambda: defaultdict(list))
     files = defaultdict(lambda: defaultdict(list))

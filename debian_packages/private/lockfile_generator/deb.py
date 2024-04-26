@@ -168,8 +168,8 @@ class PackageIndexGroup:
     distro: Distro
     mirror: str = None
     snapshots: SnapshotsConfig = None
-    exact_sources: list = field(init=False, default_factory=list)
-    indices: list = field(init=False, default_factory=list)
+    exact_sources: list[str] = field(init=False)
+    indices: list[str] = field(init=False)
     _packages: networkx.DiGraph = field(init=False, default_factory=networkx.DiGraph)
 
     def __post_init__(self):
