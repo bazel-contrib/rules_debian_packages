@@ -292,7 +292,7 @@ class PackageIndexGroup:
         )
 
     def _exact_package_index(self, source: str, index: int) -> PackageIndex:
-        pool_root_url_, _, rest = source.partition("dists/")
+        pool_root_url_, _, rest = source.partition("/dists/")
         return PackageIndex(
             name=f"exact_{str(index)}",
             arch=self.arch,

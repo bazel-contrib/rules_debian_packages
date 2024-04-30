@@ -80,7 +80,7 @@ def main():
         logger.info("Dry run. not writing files!")
         logger.debug(lockfile.to_json())
     else:
-        if snapshots:
+        if args.snapshots_file:
             snapshots.to_yaml_file(args.snapshots_file)
         lockfile.to_json_file(args.lock_file, indent=2, sort_keys=True)
 
