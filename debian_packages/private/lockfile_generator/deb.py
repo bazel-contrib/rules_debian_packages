@@ -292,12 +292,13 @@ class PackageIndexGroup:
         )
 
     def _exact_package_index(self, source: str, index: int) -> PackageIndex:
+        pool_root_url_, _, rest = source.partition("dists/")
         return PackageIndex(
             name=f"exact_{str(index)}",
             arch=self.arch,
             distro=self.distro,
-            pool_root_url=source,
-            index_file_path= ('/' if source[-1] != '/' else '') + f"binary-{self.debian_arch}/Packages.xz",
+            pool_root_url=pool_root_url_,
+            index_file_path= f"dists/{rest}/binary-{self.debian_arch}/Packages.xz",
         )
 
     def resolve_package(
