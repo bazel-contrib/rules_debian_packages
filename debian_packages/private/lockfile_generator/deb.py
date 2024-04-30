@@ -298,7 +298,7 @@ class PackageIndexGroup:
             arch=self.arch,
             distro=self.distro,
             pool_root_url=pool_root_url_,
-            index_file_path= f"dists/{rest}" + '/' if rest[-1] != '/' else '' + f"binary-{self.debian_arch}/Packages.xz",
+            index_file_path= ('/' if source[-1] != '/' else '') + f"binary-{self.debian_arch}/Packages.xz",
         )
 
     def resolve_package(
