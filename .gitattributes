@@ -10,4 +10,4 @@ docs/*.md linguist-generated=true
 examples export-ignore
 
 # Occasionally there's a need to "stamp" the release version into a file
-debian_packages/version.bzl export-subst
+apt/version.bzl export-subst

@@ -4,7 +4,7 @@ from datetime import date, timedelta
 
 import requests
 
-from debian_packages.private.lockfile_generator.config import SnapshotsConfig
+from apt.private.lockfile_generator.config import SnapshotsConfig
 
 logger = logging.getLogger(__name__)
 

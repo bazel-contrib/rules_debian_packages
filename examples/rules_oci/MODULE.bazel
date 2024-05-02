@@ -1,0 +1,23 @@
+module(
+    name = "rules_apt_rules_oci_example",
+)
+
+bazel_dep(name = "rules_apt", version = "")
+
+bazel_dep(name = "rules_python", version = "0.31.0")
+bazel_dep(name = "rules_oci", version = "1.7.5")
+bazel_dep(name = "rules_pkg", version = "0.10.1")
+
+local_path_override(
+    module_name = "rules_apt",
+    path = "../..",
+)
+
+apt = use_extension("@rules_apt//apt:extensions.bzl", "apt")
+apt.repository(
+    name = "debian_packages",
+    default_arch = "amd64",
+    default_distro = "debian12",
+    lock_file = "//:packages.lock",
+)
+use_repo(apt, "debian_packages")

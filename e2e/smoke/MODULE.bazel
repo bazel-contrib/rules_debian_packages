@@ -1,7 +1,13 @@
-bazel_dep(name = "rules_debian_packages", version = "0.0.0", dev_dependency = True)
-bazel_dep(name = "bazel_skylib", version = "1.5.0", dev_dependency = True)
+module(
+    name = "smoke_test",
+)
+
+bazel_dep(name = "rules_apt", version = "")
+
+bazel_dep(name = "container_structure_test", version = "1.16.0")
+bazel_dep(name = "bazel_skylib", version = "1.5.0")
 
 local_path_override(
-    module_name = "rules_debian_packages",
+    module_name = "rules_apt",
     path = "../..",
 )

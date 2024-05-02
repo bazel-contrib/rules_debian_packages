@@ -7,10 +7,10 @@ def debfile_name(name, distro, arch):
     return package_name(name, distro, arch) + "_debfile"
 
 def debfile_target(repo, name, distro, arch):
-    return "@" + repo + "_" + debfile_name(name, distro, arch) + "//file"
+    return "@" + repo + "//" + debfile_name(name, distro, arch) + ":file"
 
 def debfile_layer_target(repo, name, distro, arch):
-    return "@" + repo + "_" + package_name(name, distro, arch) + "//:layer"
+    return "@" + repo + "//" + package_name(name, distro, arch) + ":layer"
 
 def package_name(name, distro, arch):
     return sanitize_name(name) + "_" + distro + "_" + arch

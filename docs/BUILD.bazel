@@ -4,17 +4,17 @@ load("@aspect_bazel_lib//lib:docs.bzl", "stardoc_with_diff_test", "update_docs")
 
 stardoc_with_diff_test(
     name = "lockfile",
-    bzl_library_target = "//debian_packages:defs",
+    bzl_library_target = "//apt:defs",
     symbol_names = [
-        "debian_packages_lockfile",
+        "apt_lockfile",
     ],
 )
 
 stardoc_with_diff_test(
     name = "repository",
-    bzl_library_target = "//debian_packages:defs",
+    bzl_library_target = "//apt:defs",
     symbol_names = [
-        "debian_packages_repository",
+        "apt_repository",
     ],
 )
 

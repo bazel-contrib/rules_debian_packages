@@ -1,5 +1,5 @@
 {
   "integrity": "**leave this alone**",
   "strip_prefix": "{REPO}-{VERSION}",
-  "url": "https://github.com/{OWNER}/{REPO}/releases/download/{TAG}/rules_debian_packages-{TAG}.tar.gz"
+  "url": "https://github.com/{OWNER}/{REPO}/releases/download/{TAG}/rules_apt-{TAG}.tar.gz"
 }

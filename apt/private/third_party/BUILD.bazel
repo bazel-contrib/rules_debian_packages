@@ -16,8 +16,8 @@ write_file(
         # This depends on bash, would need tweaks for Windows
         "#!/usr/bin/env bash",
         # Bazel gives us a way to access the source folder!
-        "IN=external/rules_debian_packages_pypi_deps/requirements.bzl",
-        "OUT=$BUILD_WORKSPACE_DIRECTORY/debian_packages/private/third_party/requirements.bzl",
+        "IN=external/rules_apt_pypi_deps/requirements.bzl",
+        "OUT=$BUILD_WORKSPACE_DIRECTORY/apt/private/third_party/requirements.bzl",
         "cp -fv $IN $OUT",
     ],
 )
@@ -25,7 +25,7 @@ write_file(
 sh_binary(
     name = "vendor_requirements",
     srcs = ["vendor_requirements.sh"],
-    data = ["@rules_debian_packages_pypi_deps//:requirements.bzl"],
+    data = ["@rules_apt_pypi_deps//:requirements.bzl"],
 )
 
 # Similarly ensures that the requirements.bzl file is updated
@@ -34,5 +34,5 @@ diff_test(
     name = "test_vendored",
     failure_message = "Please run:  bazel run //:vendor_requirements",
     file1 = "requirements.bzl",
-    file2 = "@rules_debian_packages_pypi_deps//:requirements.bzl",
+    file2 = "@rules_apt_pypi_deps//:requirements.bzl",
 )

@@ -2,7 +2,7 @@ load("@rules_oci//oci:defs.bzl", "oci_image", "oci_tarball")
 load("@debian_packages//:packages.bzl", "debian_package_layer")
 load("@rules_pkg//pkg:mappings.bzl", "pkg_mklink")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
-load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_lockfile")
+load("@rules_apt//apt:defs.bzl", "apt_lockfile")
 
 package(default_visibility = ["//visibility:public"])
 
@@ -68,7 +68,7 @@ oci_tarball(
 # bazel run :debian_packages.generate
 # Update snapshots with:
 # bazel run :debian_packages.update
-debian_packages_lockfile(
+apt_lockfile(
     name = "debian_packages",
     lock_file = "packages.lock",
     packages_file = "packages.yaml",

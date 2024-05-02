@@ -1,8 +1,8 @@
-"""Implementation of the debian_packages_lockfile rule."""
+"""Implementation of the apt_lockfile rule."""
 
 load("@bazel_skylib//rules:write_file.bzl", "write_file")
 
-def debian_packages_lockfile(
+def apt_lockfile(
         name,
         snapshots_file = "snapshots.yaml",
         packages_file = "packages.yaml",
@@ -22,14 +22,14 @@ def debian_packages_lockfile(
     Typical usage in `BUILD.bazel`:
 
     ```starlark
-    load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_lockfile")
+    load("@rules_apt//apt:defs.bzl", "apt_lockfile")
 
     # Generate lockfile with:
-    # bazel run //path/to:debian_packages.generate
+    # bazel run //path/to:apt.generate
     # Update snapshots with:
-    # bazel run //path/to:debian_packages.update
-    debian_packages_lockfile(
-        name = "debian_packages",
+    # bazel run //path/to:apt.update
+    apt_lockfile(
+        name = "apt",
         lock_file = "debian_packages.lock",
         packages_file = "debian_packages.yaml",
         snapshots_file = "debian_snapshots.yaml",
@@ -46,7 +46,7 @@ def debian_packages_lockfile(
       verbose: Enable verbose logging.
       debug: Enable debug logging.
     """
-    lockfile_generator = Label("//debian_packages/private/lockfile_generator:binary")
+    lockfile_generator = Label("//apt/private/lockfile_generator:binary")
 
     data = [
         lockfile_generator,

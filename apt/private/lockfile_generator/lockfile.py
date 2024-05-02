@@ -2,8 +2,8 @@ import logging
 from collections import defaultdict
 from itertools import product
 
-from debian_packages.private.lockfile_generator.deb import PackageIndexGroup
-from debian_packages.private.lockfile_generator.config import (
+from apt.private.lockfile_generator.deb import PackageIndexGroup
+from apt.private.lockfile_generator.config import (
     Arch,
     Debfile,
     Distro,

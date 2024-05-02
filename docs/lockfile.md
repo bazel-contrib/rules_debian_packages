@@ -4,16 +4,16 @@
 To load these rules, add this to the top of your `BUILD` file:
 
 ```starlark
-load("@rules_debian_packages//debian_packages:defs.bzl", ...)
+load("@rules_apt//apt:defs.bzl", ...)
 ```
 
 
-<a id="debian_packages_lockfile"></a>
+<a id="apt_lockfile"></a>
 
-## debian_packages_lockfile
+## apt_lockfile
 
 <pre>
-debian_packages_lockfile(<a href="#debian_packages_lockfile-name">name</a>, <a href="#debian_packages_lockfile-snapshots_file">snapshots_file</a>, <a href="#debian_packages_lockfile-packages_file">packages_file</a>, <a href="#debian_packages_lockfile-lock_file">lock_file</a>, <a href="#debian_packages_lockfile-mirror">mirror</a>, <a href="#debian_packages_lockfile-verbose">verbose</a>, <a href="#debian_packages_lockfile-debug">debug</a>)
+apt_lockfile(<a href="#apt_lockfile-name">name</a>, <a href="#apt_lockfile-snapshots_file">snapshots_file</a>, <a href="#apt_lockfile-packages_file">packages_file</a>, <a href="#apt_lockfile-lock_file">lock_file</a>, <a href="#apt_lockfile-mirror">mirror</a>, <a href="#apt_lockfile-verbose">verbose</a>, <a href="#apt_lockfile-debug">debug</a>)
 </pre>
 
 Macro that produces targets to interact with a lockfile.
@@ -28,14 +28,14 @@ the lockfile.
 Typical usage in `BUILD.bazel`:
 
 ```starlark
-load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_lockfile")
+load("@rules_apt//apt:defs.bzl", "apt_lockfile")
 
 # Generate lockfile with:
-# bazel run //path/to:debian_packages.generate
+# bazel run //path/to:apt.generate
 # Update snapshots with:
-# bazel run //path/to:debian_packages.update
-debian_packages_lockfile(
-    name = "debian_packages",
+# bazel run //path/to:apt.update
+apt_lockfile(
+    name = "apt",
     lock_file = "debian_packages.lock",
     packages_file = "debian_packages.yaml",
     snapshots_file = "debian_snapshots.yaml",
@@ -49,12 +49,12 @@ debian_packages_lockfile(
 
 | Name  | Description | Default Value |
 | :------------- | :------------- | :------------- |
-| <a id="debian_packages_lockfile-name"></a>name |  The name of the lockfile-target.   |  none |
-| <a id="debian_packages_lockfile-snapshots_file"></a>snapshots_file |  The file to read or write the debian snapshots from.   |  <code>"snapshots.yaml"</code> |
-| <a id="debian_packages_lockfile-packages_file"></a>packages_file |  The file to read the desired packages from.   |  <code>"packages.yaml"</code> |
-| <a id="debian_packages_lockfile-lock_file"></a>lock_file |  The file to write locked packages to.   |  <code>"packages.lock"</code> |
-| <a id="debian_packages_lockfile-mirror"></a>mirror |  The debian-snapshot host to use.   |  <code>"https://snapshot.debian.org"</code> |
-| <a id="debian_packages_lockfile-verbose"></a>verbose |  Enable verbose logging.   |  <code>False</code> |
-| <a id="debian_packages_lockfile-debug"></a>debug |  Enable debug logging.   |  <code>False</code> |
+| <a id="apt_lockfile-name"></a>name |  The name of the lockfile-target.   |  none |
+| <a id="apt_lockfile-snapshots_file"></a>snapshots_file |  The file to read or write the debian snapshots from.   |  <code>"snapshots.yaml"</code> |
+| <a id="apt_lockfile-packages_file"></a>packages_file |  The file to read the desired packages from.   |  <code>"packages.yaml"</code> |
+| <a id="apt_lockfile-lock_file"></a>lock_file |  The file to write locked packages to.   |  <code>"packages.lock"</code> |
+| <a id="apt_lockfile-mirror"></a>mirror |  The debian-snapshot host to use.   |  <code>"https://snapshot.debian.org"</code> |
+| <a id="apt_lockfile-verbose"></a>verbose |  Enable verbose logging.   |  <code>False</code> |
+| <a id="apt_lockfile-debug"></a>debug |  Enable debug logging.   |  <code>False</code> |
 
 

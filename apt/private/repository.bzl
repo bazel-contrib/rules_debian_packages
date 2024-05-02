@@ -1,13 +1,15 @@
-"""Implementation of the debian_packages_repository rule."""
+"""Implementation of the apt_repository rule."""
 
-_doc = """A repository rule to download debian packages using Bazel's downloader.
+load("utils.bzl", "package_name")
+
+_doc = """A repository rule to download .deb packages using Bazel's downloader.
 
 Typical usage in `WORKSPACE.bazel`:
 
 ```starlark
-load("@rules_debian_packages//debian_packages:defs.bzl", "debian_packages_repository")
+load("@rules_apt//apt:defs.bzl", "apt_repository")
 
-debian_packages_repository(
+apt_repository(
     name = "my_debian_packages",
     default_arch = "amd64",
     default_distro = "debian12",
@@ -17,21 +19,6 @@ debian_packages_repository(
 load("@my_debian_packages//:packages.bzl", "install_deps")
 
 install_deps()
-```
-
-
-Packages can be used for `rules_docker` based container images like this:
-
-```starlark
-load("@io_bazel_rules_docker//container:container.bzl", "container_image")
-load("@my_debian_packages//:packages.bzl", "debian_package")
-
-container_image(
-    name = "my_image",
-    debs = [
-        debian_package("busybox-static"),
-    ],
-)
 ```
 
 
@@ -56,19 +43,35 @@ def _impl(rctx):
     lock_file_files = lock_file_content.get("files")
     lock_file_packages = lock_file_content.get("packages")
 
+    layer_build_template = rctx.read(
+        rctx.path(
+            Label("@rules_apt//apt/private:LAYER_BUILD.template.bazel"),
+        ),
+    )
+
     files = []
     for distro, archs in lock_file_files.items():
         for arch, arch_files in archs.items():
             for file in arch_files:
-                files.append(
-                    (
-                        file["name"],
-                        distro,
-                        arch,
-                        file["url"],
-                        file["sha256"],
-                        file["url"].split("/")[-1],
-                    ),
+                filename = file["url"].split("/")[-1]
+                deb_folder = package_name(file["name"], distro, arch)
+
+                # For debfile
+                rctx.download(
+                    url = [file["url"]],
+                    sha256 = file["sha256"],
+                    output = filename,
+                )
+
+                # For debfile_layer
+                rctx.extract(
+                    archive = filename,
+                    output = deb_folder,
+                )
+
+                rctx.file(
+                    deb_folder + "/BUILD.bazel",
+                    layer_build_template,
                 )
 
     packages = []
@@ -86,18 +89,18 @@ def _impl(rctx):
 
     rctx.template(
         "BUILD.bazel",
-        Label("@rules_debian_packages//debian_packages/private:repository.build.tmpl"),
+        Label("@rules_apt//apt/private:REPO_BUILD.template.bazel"),
         substitutions = {
-            "{REPOSITORY}": rctx.attr.name,
+            "{REPOSITORY}": rctx.attr.repo_name,
             "{PACKAGES}": str(tuple(packages)),
         },
     )
 
     rctx.template(
         "packages.bzl",
-        Label("@rules_debian_packages//debian_packages/private:repository.packages.tmpl"),
+        Label("@rules_apt//apt/private:packages.template.bzl"),
         substitutions = {
-            "{REPOSITORY}": rctx.attr.name,
+            "{REPOSITORY}": rctx.attr.repo_name,
             "{DEFAULT_DISTRO}": rctx.attr.default_distro,
             "{DEFAULT_ARCH}": rctx.attr.default_arch,
             "{FILES}": str(tuple(files)),
@@ -105,6 +108,10 @@ def _impl(rctx):
     )
 
 _attrs = {
+    "repo_name": attr.string(
+        doc = "Name of the repository. Required because Bzlmod canonicalizes the repository name.",
+        mandatory = True,
+    ),
     "lock_file": attr.label(
         doc = "The lockfile to generate a repository from.",
         allow_single_file = True,
@@ -120,7 +127,7 @@ _attrs = {
     ),
 }
 
-debian_packages_repository = repository_rule(
+apt_repository = repository_rule(
     implementation = _impl,
     attrs = _attrs,
     doc = _doc,

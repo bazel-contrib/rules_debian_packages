@@ -12,4 +12,4 @@ jobs:
   release:
     uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v5
     with:
-      release_files: rules_debian_packages-*.tar.gz
+      release_files: rules_apt-*.tar.gz

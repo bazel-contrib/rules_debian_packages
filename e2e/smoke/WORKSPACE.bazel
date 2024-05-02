@@ -4,30 +4,6 @@ local_repository(
     path = "../..",
 )
 
-load("@rules_debian_packages//:internal_deps.bzl", "rules_debian_packages_internal_deps")
-
-rules_debian_packages_internal_deps()
-
-# ===== setup rules_docker =====
-load("@io_bazel_rules_docker//repositories:repositories.bzl", container_repositories = "repositories")
-
-container_repositories()
-
-load("@io_bazel_rules_docker//repositories:deps.bzl", container_deps = "deps")
-
-container_deps(go_repository_default_config = "//:WORKSPACE.bazel")
-
-load("@io_bazel_rules_docker//container:container.bzl", "container_pull")
-
-container_pull(
-    name = "docker_distroless_cc",
-    architecture = "amd64",
-    # tag = "latest",
-    digest = "sha256:ae1dfeeae387e051b7abf5607feec0b5205678c8b3d35a5d9d71cb312ae7a3a0",  # Dec 6, 2023
-    registry = "gcr.io",
-    repository = "distroless/cc-debian12",
-)
-
 # ===== setup rules_oci =====
 load("@rules_oci//oci:dependencies.bzl", "rules_oci_dependencies")
 

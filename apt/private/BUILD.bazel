@@ -1,0 +1,43 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+exports_files(
+    [
+        "lockfile.bzl",
+        "repository.bzl",
+    ],
+    visibility = ["//docs:__pkg__"],
+)
+
+bzl_library(
+    name = "apt_lockfile",
+    visibility = ["//:__subpackages__"],
+    deps = [
+        "@bazel_skylib//rules:write_file",
+    ],
+)
+
+bzl_library(
+    name = "lockfile",
+    srcs = ["lockfile.bzl"],
+    visibility = ["//apt:__subpackages__"],
+    deps = ["@bazel_skylib//rules:write_file"],
+)
+
+bzl_library(
+    name = "packages.template",
+    srcs = ["packages.template.bzl"],
+    visibility = ["//apt:__subpackages__"],
+    deps = ["@rules_apt//apt/private:utils"],
+)
+
+bzl_library(
+    name = "repository",
+    srcs = ["repository.bzl"],
+    visibility = ["//apt:__subpackages__"],
+)
+
+bzl_library(
+    name = "utils",
+    srcs = ["utils.bzl"],
+    visibility = ["//apt:__subpackages__"],
+)

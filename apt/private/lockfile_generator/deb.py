@@ -8,7 +8,7 @@ import requests
 import networkx
 from debian import deb822, debian_support
 
-from debian_packages.private.lockfile_generator.config import (
+from apt.private.lockfile_generator.config import (
     Arch,
     Distro,
     SnapshotsConfig,

@@ -1,7 +1,7 @@
 {
-  "homepage": "https://github.com/betaboon/rules_debian_packages",
+  "homepage": "https://github.com/sin-ack/rules_apt",
   "maintainers": [],
-  "repository": ["github:betaboon/rules_debian_packages"],
+  "repository": ["github:sin-ack/rules_apt"],
   "versions": [],
   "yanked_versions": {}
 }

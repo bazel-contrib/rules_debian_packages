@@ -8,8 +8,8 @@ TAG=${GITHUB_REF_NAME}
 # The prefix is chosen to match what GitHub generates for source archives
 # This guarantees that users can easily switch from a released artifact to a source archive
 # with minimal differences in their code (e.g. strip_prefix remains the same)
-PREFIX="rules_debian_packages-${TAG:1}"
-ARCHIVE="rules_debian_packages-$TAG.tar.gz"
+PREFIX="rules_apt-${TAG:1}"
+ARCHIVE="rules_apt-$TAG.tar.gz"
 
 # NB: configuration for 'git archive' is in /.gitattributes
 git archive --format=tar --prefix=${PREFIX}/ ${TAG} | gzip > $ARCHIVE
@@ -22,7 +22,7 @@ cat << EOF
 2. Add to your \`MODULE.bazel\` file:
 
 \`\`\`starlark
-bazel_dep(name = "rules_debian_packages", version = "${TAG:1}")
+bazel_dep(name = "rules_apt", version = "${TAG:1}")
 \`\`\`
 
 ## Using WORKSPACE
@@ -32,10 +32,10 @@ Paste this snippet into your `WORKSPACE.bazel` file:
 \`\`\`starlark
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 http_archive(
-    name = "rules_debian_packages",
+    name = "rules_apt",
     sha256 = "${SHA}",
     strip_prefix = "${PREFIX}",
-    url = "https://github.com/betaboon/rules_debian_packages/releases/download/${TAG}/${ARCHIVE}",
+    url = "https://github.com/sin-ack/rules_apt/releases/download/${TAG}/${ARCHIVE}",
 )
 EOF
 

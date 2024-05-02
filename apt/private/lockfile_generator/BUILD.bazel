@@ -1,5 +1,5 @@
+load("@rules_apt_pip//:requirements.bzl", "requirement")
 load("@rules_python//python:defs.bzl", "py_binary")
-load("//debian_packages/private/third_party:requirements.bzl", "requirement")
 
 exports_files(["__main__.py"])
 

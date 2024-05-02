@@ -2,13 +2,13 @@ import argparse
 import logging
 from pathlib import Path
 
-from debian_packages.private.lockfile_generator.config import (
+from apt.private.lockfile_generator.config import (
     PackagesConfig,
     SnapshotsConfig,
 )
-from debian_packages.private.lockfile_generator.lockfile import generate_lockfile
-from debian_packages.private.lockfile_generator.snapshots import get_latest_snapshots
-from debian_packages.private.lockfile_generator.deb import (
+from apt.private.lockfile_generator.lockfile import generate_lockfile
+from apt.private.lockfile_generator.snapshots import get_latest_snapshots
+from apt.private.lockfile_generator.deb import (
     get_debian_distro,
     get_debian_arch,
 )
