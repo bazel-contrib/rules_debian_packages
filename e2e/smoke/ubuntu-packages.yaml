@@ -1,5 +1,5 @@
 - distros: ["ubuntu2204"]
-  archs: ["amd64"]
+  architectures: ["amd64"]
   packages:
     - busybox-static
   exclude_packages:

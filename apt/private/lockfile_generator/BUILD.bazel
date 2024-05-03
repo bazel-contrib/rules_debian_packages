@@ -13,5 +13,6 @@ py_binary(
         requirement("networkx"),
         requirement("python-debian"),
         requirement("requests"),
+        requirement("typing_extensions"),
     ],
 )

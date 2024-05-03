@@ -16,7 +16,7 @@ Possible values:
 
 **NOTE:** It is expecting distros like `debian11` instead of codenames like `bullseye` !
 
-## `archs`
+## `architectures`
 
 This `list` defines for which architectures packages should be pulled.
 
@@ -46,7 +46,7 @@ This `list` defines which packages to prioritize over others when a package depe
 
 ```yaml
 - distros: ["debian11"]
-  archs: ["amd64"]
+  architectures: ["amd64"]
   packages:
     - busybox-static
     - clinfo

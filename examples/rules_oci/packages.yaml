@@ -1,5 +1,5 @@
 - distros: ["debian12"]
-  archs: ["amd64"]
+  architectures: ["amd64"]
   packages:
     # required to replicate distroless/static
     - base-files

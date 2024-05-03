@@ -7,7 +7,6 @@ def apt_lockfile(
         snapshots_file = "snapshots.yaml",
         packages_file = "packages.yaml",
         lock_file = "packages.lock",
-        mirror = "https://snapshot.debian.org",
         verbose = False,
         debug = False):
     """Macro that produces targets to interact with a lockfile.
@@ -42,7 +41,6 @@ def apt_lockfile(
       snapshots_file: The file to read or write the debian snapshots from.
       packages_file: The file to read the desired packages from.
       lock_file: The file to write locked packages to.
-      mirror: The debian-snapshot host to use.
       verbose: Enable verbose logging.
       debug: Enable debug logging.
     """
@@ -60,7 +58,6 @@ def apt_lockfile(
         "--snapshots-file $(rootpath {})".format(snapshots_file),
         "--packages-file $(rootpath {})".format(packages_file),
         "--lock-file $(rootpath {})".format(lock_file),
-        "--mirror {}".format(mirror),
     ]
 
     if verbose:

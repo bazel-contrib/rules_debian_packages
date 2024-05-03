@@ -4,18 +4,18 @@ from itertools import product
 
 from apt.private.lockfile_generator.deb import PackageIndexGroup
 from apt.private.lockfile_generator.config import (
-    Arch,
+    CODENAME_TO_DISTRIBUTION,
+    Architecture,
     Debfile,
-    Distro,
     Lockfile,
     Package,
     PackagesConfig,
-    SnapshotsConfig,
+    SnapshotMap,
 )
 
 logger = logging.getLogger(__name__)
 
-DistroArchTuple = tuple[Distro, Arch]
+DistroArchTuple = tuple[str, Architecture]
 
 
 def _sanitize_name(name: str) -> str:
@@ -23,23 +23,25 @@ def _sanitize_name(name: str) -> str:
 
 
 def generate_lockfile(
-    snapshots_config: SnapshotsConfig,
-    packages_config: PackagesConfig,
-    mirror: str,
+    snapshots: SnapshotMap,
+    packages_config: list[PackagesConfig],
 ) -> Lockfile:
-    packages = defaultdict(lambda: defaultdict(list))
-    files = defaultdict(lambda: defaultdict(list))
+    packages: dict[str, dict[Architecture, list[Package]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    files: dict[str, dict[Architecture, list[Debfile]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
     pigs: dict[DistroArchTuple, PackageIndexGroup] = {}
     for pc in packages_config:
         logger.debug(f"{pc=}")
-        for distro, arch in product(pc.distros, pc.archs):
+        for distro, arch in product(pc.distros, pc.architectures):
             logger.debug(f"{distro=} {arch=}")
             if (distro, arch) not in pigs:
                 pigs[(distro, arch)] = PackageIndexGroup(
-                    snapshots=snapshots_config,
-                    distro=distro,
+                    snapshots=snapshots,
+                    distro=CODENAME_TO_DISTRIBUTION[distro].value,
                     arch=arch,
-                    mirror=mirror,
                 )
             pig = pigs[(distro, arch)]
             for package_name in pc.packages:
@@ -69,7 +71,7 @@ def generate_lockfile(
         files[distro][arch].sort(key=lambda x: x.name)
 
     return Lockfile(
-        snapshots=snapshots_config,
+        snapshots=snapshots,
         packages=packages,
         files=files,
     )

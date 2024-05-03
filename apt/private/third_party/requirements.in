@@ -3,3 +3,4 @@ python-debian==0.1.49
 PyYAML==6.0.1
 dataclass-wizard[yaml]==0.22.2
 networkx==3.2.1
+typing_extensions==4.11.0
