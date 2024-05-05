@@ -1,3 +1,7 @@
+# Deprecation in favor of `rules_distroless`
+
+In order centralize efforts this repo has been deprecated in favor of [rules_distroless](https://github.com/GoogleContainerTools/rules_distroless).
+
 # Bazel rules for debian_packages
 
 A ruleset for downloading debian-packages and including them in Container Images.
