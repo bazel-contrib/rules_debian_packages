@@ -45,7 +45,7 @@ load("@rules_oci//oci:pull.bzl", "oci_pull")
 oci_pull(
     name = "oci_distroless_cc",
     # tag = "latest",
-    digest = "sha256:a9056d2232d16e3772bec3ef36b93a5ea9ef6ad4b4ed407631e534b85832cf40",  # Dec 6, 2023
+    digest = "sha256:e1065a1d58800a7294f74e67c32ec4146d09d6cbe471c1fa7ed456b2d2bf06e0",  # Dec 6, 2023
     image = "gcr.io/distroless/cc-debian12",
     platforms = ["linux/amd64"],
 )
