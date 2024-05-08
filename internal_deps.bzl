@@ -32,9 +32,9 @@ def rules_debian_packages_internal_deps():
 
     http_archive(
         name = "aspect_bazel_lib",
-        sha256 = "4d6010ca5e3bb4d7045b071205afa8db06ec11eb24de3f023d74d77cca765f66",
-        strip_prefix = "bazel-lib-1.39.0",
-        url = "https://github.com/aspect-build/bazel-lib/releases/download/v1.39.0/bazel-lib-v1.39.0.tar.gz",
+        sha256 = "87ab4ec479ebeb00d286266aca2068caeef1bb0b1765e8f71c7b6cfee6af4226",
+        strip_prefix = "bazel-lib-2.7.3",
+        url = "https://github.com/aspect-build/bazel-lib/releases/download/v2.7.3/bazel-lib-v2.7.3.tar.gz",
     )
 
     http_archive(
